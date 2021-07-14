@@ -7,76 +7,102 @@
 #define SB2 2
 #define SB3 9
 #define RP1 1
-
-
 #define RED 8
 #define RED_2 7
 
+enum {
+  ST0,
+  ST1
+} states;
+
+volatile boolean intFlag = false;
 const int  YELLOW_LEFT = 6;
 const int  YELLOW_RIGHT = 5;
 int ledState = LOW;
 int leftState = LOW;
 int rightState = LOW;
+int waitState = 0;
 
 
 
 unsigned long last_time;
 
-int timer(int pin,int state){
-  Serial.println(last_time);
-  Serial.println(millis());
-   if (millis() - last_time >= 1000){
-    last_time = millis();
-    if (state == LOW) {
-      state = HIGH;
-      } 
-      else 
-      {
-        state = LOW;
-      }
-      digitalWrite(pin,state);
-  }
-  return state;
-}
 
 void setup() {
+  states = ST0;
   pinMode(RED_2,OUTPUT);
   pinMode(RED,OUTPUT);
-  pinMode(SB1_LEFT,INPUT);
-  pinMode(SB1_RIGHT,INPUT);
+  pinMode(SB1_LEFT,INPUT_PULLUP);
+  pinMode(SB1_RIGHT,INPUT_PULLUP);
   pinMode(SB2,INPUT_PULLUP);
-  pinMode(SB3,INPUT);
+  pinMode(SB3,INPUT_PULLUP);
   pinMode(YELLOW_LEFT,OUTPUT);
   pinMode(YELLOW_RIGHT,OUTPUT);
  // analogWrite(YELLOW_LEFT,100);
  // digitalWrite(YELLOW_RIGHT,HIGH);
   Serial.begin(9600);
 
-  Timer1.setPeriod(1000000);
+  Timer1.setPeriod(10000);
   Timer1.enableISR(CHANNEL_A);
-  Timer0.setPeriod(1000000);
-  Timer0.enableISR(CHANNEL_A);
-  Timer2.setPeriod(1000000);
-  Timer2.enableISR(CHANNEL_A);
 }
 
 ISR(TIMER1_A) {
-  Serial.println("1");
-  digitalWrite(YELLOW_LEFT,!digitalRead(YELLOW_LEFT));
-  digitalWrite(YELLOW_RIGHT,!digitalRead(YELLOW_RIGHT));
+  intFlag = true;
 }
 
-ISR(TIMER0_A) {
-  Serial.println("2");
-  digitalWrite(YELLOW_LEFT,!digitalRead(YELLOW_LEFT));
-}
-
-ISR(TIMER2_A) {
-  Serial.println("3");
-  digitalWrite(YELLOW_RIGHT,!digitalRead(YELLOW_RIGHT));
-}
 
 void loop() {
+
+  if (true == intFlag){
+    intFlag = false;
+    switch(states)
+    {
+      case ST0:{
+        if (HIGH == digitalRead(SB3))
+        {
+          if (ledState == LOW) {
+          ledState = HIGH;
+          } else {
+          ledState = LOW;
+          }
+          digitalWrite(YELLOW_LEFT,ledState);
+          digitalWrite(YELLOW_RIGHT,ledState);
+        }
+        else if (HIGH == digitalRead(SB1_RIGHT))
+        {
+         digitalWrite(YELLOW_RIGHT,!digitalRead(YELLOW_RIGHT));
+         digitalWrite(YELLOW_LEFT,LOW);
+         Serial.println("leftState = " + digitalRead(SB1_LEFT));
+       }
+       else if (HIGH == digitalRead(SB1_LEFT))
+       {
+        digitalWrite(YELLOW_LEFT,!digitalRead(YELLOW_LEFT));
+        digitalWrite(YELLOW_RIGHT,LOW);
+        Serial.println("rightState = " + digitalRead(SB1_RIGHT));
+       }
+       else 
+       {
+        digitalWrite(YELLOW_LEFT,LOW);
+        digitalWrite(YELLOW_RIGHT,LOW);
+        }
+        waitState = 100;
+        states = ST1;
+      }
+      break;
+
+      case ST1: {
+        if (waitState > 0)
+        {
+          waitState--;
+        }
+        else states = ST0;
+      }
+      break;
+
+      default:
+      break;
+    }
+  }
 
  /* if (HIGH == digitalRead(SB3))
   {
