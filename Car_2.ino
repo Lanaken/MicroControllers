@@ -104,37 +104,6 @@ void loop() {
     }
   }
 
- /* if (HIGH == digitalRead(SB3))
-  {
-    if (millis() - last_time >= 1000)
-    {
-      last_time = millis();
-      if (ledState == LOW) {
-      ledState = HIGH;
-      } else {
-      ledState = LOW;
-      }
-      digitalWrite(YELLOW_LEFT,ledState);
-      digitalWrite(YELLOW_RIGHT,ledState);
-    }
-  }
-  else if (HIGH == digitalRead(SB1_LEFT))
-       {
-        digitalWrite(YELLOW_RIGHT,LOW);
-        leftState = timer(YELLOW_LEFT,leftState);
-        Serial.println("leftState = " + digitalRead(SB1_LEFT));
-       }
-  else if (HIGH == digitalRead(SB1_RIGHT))
-       {
-        digitalWrite(YELLOW_LEFT,LOW);
-        rightState = timer(YELLOW_RIGHT,rightState);
-        Serial.println("rightState = " + rightState);
-       }
-  else 
-  {
-   digitalWrite(YELLOW_LEFT,LOW);
-   digitalWrite(YELLOW_RIGHT,LOW);
-  }*/
   //Serial.println(analogRead(SB1));
    if (brakes < analogRead(RP1))
   {
