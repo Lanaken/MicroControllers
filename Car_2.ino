@@ -7,7 +7,7 @@
 #define SB2 2
 #define SB3 9
 #define RP1 1
-#define RED 8
+#define RED 3
 #define RED_2 7
 
 enum {
